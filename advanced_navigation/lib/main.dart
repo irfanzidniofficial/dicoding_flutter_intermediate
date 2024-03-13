@@ -1,19 +1,21 @@
+import 'package:advanced_navigation/screen/quotes_list_screen.dart';
 import 'package:flutter/material.dart';
 
+import 'model/quote.dart';
+
 void main() {
-  runApp(const MainApp());
+  runApp(const QuotesApp());
 }
 
-class MainApp extends StatelessWidget {
-  const MainApp({super.key});
+class QuotesApp extends StatelessWidget {
+  const QuotesApp({super.key});
 
   @override
   Widget build(BuildContext context) {
-    return const MaterialApp(
-      home: Scaffold(
-        body: Center(
-          child: Text('Hello World!'),
-        ),
+    return MaterialApp(
+      title: 'Quotes App',
+      home: QuotesListScreen(
+        quotes: quotes,
       ),
     );
   }

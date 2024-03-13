@@ -4,10 +4,11 @@ import '../model/quote.dart';
 
 class QuotesListScreen extends StatelessWidget {
   final List<Quote> quotes;
+   final Function(String) onTapped;
 
   const QuotesListScreen({
     super.key,
-    required this.quotes,
+    required this.quotes, required this.onTapped,
   });
 
   @override
@@ -23,6 +24,7 @@ class QuotesListScreen extends StatelessWidget {
               title: Text(quote.author),
               subtitle: Text(quote.quote),
               isThreeLine: true,
+              onTap: () => onTapped(quote.id),
             )
         ],
       ),

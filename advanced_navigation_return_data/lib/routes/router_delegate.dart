@@ -1,3 +1,4 @@
+import 'package:advanced_navigation_return_data/pages/form_screen.dart';
 import 'package:advanced_navigation_return_data/pages/quote_detail_screen.dart';
 import 'package:advanced_navigation_return_data/pages/quotes_list_screen.dart';
 import 'package:flutter/material.dart';
@@ -11,6 +12,7 @@ class MyRouterDelegate extends RouterDelegate
   /// change other method, and
   /// add the variable to Navigator widget
   final GlobalKey<NavigatorState> _navigatorKey;
+  bool isForm = false;
 
   MyRouterDelegate() : _navigatorKey = GlobalKey<NavigatorState>();
 
@@ -36,6 +38,10 @@ class MyRouterDelegate extends RouterDelegate
               selectedQuote = quoteId;
               notifyListeners();
             },
+            toFormScreen: () {
+              isForm = true;
+              notifyListeners();
+            },
           ),
         ),
         if (selectedQuote != null)
@@ -43,6 +49,16 @@ class MyRouterDelegate extends RouterDelegate
             key: ValueKey(selectedQuote),
             child: QuoteDetailsScreen(
               quoteId: selectedQuote!,
+            ),
+          ),
+        if (isForm)
+          MaterialPage(
+            key: const ValueKey("FormScreen"),
+            child: FormScreen(
+              onSend: () {
+                isForm = false;
+                notifyListeners();
+              },
             ),
           ),
       ],
@@ -53,6 +69,7 @@ class MyRouterDelegate extends RouterDelegate
         }
 
         selectedQuote = null;
+        isForm = false;
         notifyListeners();
 
         return true;

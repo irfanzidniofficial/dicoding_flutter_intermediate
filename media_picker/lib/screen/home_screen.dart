@@ -1,4 +1,8 @@
+import 'dart:io';
+
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:media_picker/provider/home_provider.dart';
 
 import 'package:provider/provider.dart';
@@ -30,7 +34,7 @@ class _HomePageState extends State<HomePage> {
           children: [
             Expanded(
               flex: 3,
-              child: context.watch<HomeProvider>().imagePath == null
+              child: context.watch<HomeProvider>().imageFile == null
                   ? const Align(
                       alignment: Alignment.center,
                       child: Icon(
@@ -68,13 +72,55 @@ class _HomePageState extends State<HomePage> {
 
   _onUpload() async {}
 
-  _onGalleryView() async {}
+  _onGalleryView() async {
+    final picker = ImagePicker();
+    final provider = context.read<HomeProvider>();
 
-  _onCameraView() async {}
+    final isMacOS = defaultTargetPlatform == TargetPlatform.macOS;
+    final isLinux = defaultTargetPlatform == TargetPlatform.linux;
+    if (isMacOS || isLinux) return;
+
+    final XFile? pickedFile = await picker.pickImage(
+      source: ImageSource.gallery,
+    );
+
+    if (pickedFile != null) {
+      provider.setImageFile(pickedFile);
+      provider.setImagePath(pickedFile.path);
+    }
+  }
+
+  _onCameraView() async {
+    final picker = ImagePicker();
+    final provider = context.read<HomeProvider>();
+
+    final XFile? pickedFile = await picker.pickImage(
+      source: ImageSource.camera,
+    );
+
+    final isAndroid = defaultTargetPlatform == TargetPlatform.android;
+    final isiOS = defaultTargetPlatform == TargetPlatform.iOS;
+    final isNotMobile = !(isAndroid || isiOS);
+    if (isNotMobile) return;
+
+    if (pickedFile != null) {
+      provider.setImageFile(pickedFile);
+      provider.setImagePath(pickedFile.path);
+    }
+  }
 
   _onCustomCameraView() async {}
 
   Widget _showImage() {
-    return Container();
+    final imagePath = context.read<HomeProvider>().imagePath;
+    return kIsWeb
+        ? Image.network(
+            imagePath.toString(),
+            fit: BoxFit.cover,
+          )
+        : Image.file(
+            File(imagePath.toString()),
+            fit: BoxFit.contain,
+          );
   }
 }

@@ -13,9 +13,11 @@ class CameraScreen extends StatefulWidget {
   State<CameraScreen> createState() => _CameraScreenState();
 }
 
-class _CameraScreenState extends State<CameraScreen> {
+class _CameraScreenState extends State<CameraScreen>
+    with WidgetsBindingObserver {
   /// todo-camera-02: create a variable to check Camera is initialize or not
   bool _isCameraInitialized = false;
+  bool _isBackCameraSelected = true;
 
   /// todo-camera-03: create a variable to handle a camera controller
   CameraController? controller;
@@ -49,15 +51,33 @@ class _CameraScreenState extends State<CameraScreen> {
 
   @override
   void initState() {
-    /// todo-camera-08: run onNewCameraSelected in setState method and inject with rear camera
+    WidgetsBinding.instance.addObserver(this);
     onNewCameraSelected(widget.cameras.first);
 
     super.initState();
   }
 
   @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    final CameraController? cameraController = controller;
+
+    if (cameraController == null || !cameraController.value.isInitialized) {
+      return;
+    }
+
+    if (state == AppLifecycleState.inactive) {
+      cameraController.dispose();
+    } else if (state == AppLifecycleState.resumed) {
+      onNewCameraSelected(cameraController.description);
+    }
+
+    super.didChangeAppLifecycleState(state);
+  }
+
+  @override
   void dispose() {
-    /// todo-camera-10: don't forget to dispose the controller
+    WidgetsBinding.instance.removeObserver(this);
+
     controller?.dispose();
     super.dispose();
   }
@@ -112,5 +132,18 @@ class _CameraScreenState extends State<CameraScreen> {
     navigator.pop(image);
   }
 
-  void _onCameraSwitch() {}
+  void _onCameraSwitch() {
+    if (widget.cameras.length == 1) return;
+    setState(() {
+      _isCameraInitialized = false;
+    });
+
+    onNewCameraSelected(
+      widget.cameras[_isBackCameraSelected ? 1 : 0],
+    );
+
+    setState(() {
+      _isBackCameraSelected = !_isBackCameraSelected;
+    });
+  }
 }

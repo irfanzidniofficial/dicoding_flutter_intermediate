@@ -8,7 +8,6 @@ import 'package:media_custom_camera/provider/home_provider.dart';
 
 import 'package:provider/provider.dart';
 
-
 import 'camera_screen.dart';
 
 class HomePage extends StatefulWidget {

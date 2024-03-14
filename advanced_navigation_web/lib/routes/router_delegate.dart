@@ -1,3 +1,4 @@
+import 'package:advanced_navigation_web/model/page_configutation.dart';
 import 'package:advanced_navigation_web/screen/quote_detail_screen.dart';
 import 'package:advanced_navigation_web/screen/register_screen.dart';
 
@@ -10,7 +11,7 @@ import '../screen/login_screen.dart';
 import '../screen/quotes_list_screen.dart';
 import '../screen/splash_screen.dart';
 
-class MyRouterDelegate extends RouterDelegate
+class MyRouterDelegate extends RouterDelegate<PageConfiguration>
     with ChangeNotifier, PopNavigatorRouterDelegateMixin {
   final GlobalKey<NavigatorState> _navigatorKey;
   final AuthRepository authRepository;
@@ -21,6 +22,8 @@ class MyRouterDelegate extends RouterDelegate
     /// todo 9: create initial function to check user logged in.
     _init();
   }
+
+  bool? isUnknown;
 
   _init() async {
     isLoggedIn = await authRepository.isLoggedIn();
@@ -68,8 +71,46 @@ class MyRouterDelegate extends RouterDelegate
   }
 
   @override
-  Future<void> setNewRoutePath(configuration) async {
+  PageConfiguration? get currentConfiguration {
+    if (isLoggedIn == null) {
+      return PageConfiguration.splash();
+    } else if (isRegister == true) {
+      return PageConfiguration.register();
+    } else if (isLoggedIn == false) {
+      return PageConfiguration.login();
+    } else if (isUnknown == true) {
+      return PageConfiguration.unknown();
+    } else if (selectedQuote == null) {
+      return PageConfiguration.home();
+    } else if (selectedQuote != null) {
+      return PageConfiguration.detailQuote(selectedQuote!);
+    } else {
+      return null;
+    }
+  }
+
+  @override
+  Future<void> setNewRoutePath(PageConfiguration configuration) async {
     /* Do Nothing */
+    if (configuration.isUnknownPage) {
+      isUnknown = true;
+      isRegister = false;
+    } else if (configuration.isRegisterPage) {
+      isRegister = true;
+    } else if (configuration.isHomePage ||
+        configuration.isLoginPage ||
+        configuration.isSplashPage) {
+      isUnknown = false;
+      selectedQuote = null;
+      isRegister = false;
+    } else if (configuration.isDetailPage) {
+      isUnknown = false;
+      isRegister = false;
+      selectedQuote = configuration.quoteId.toString();
+    } else {
+      print('Could not set new route');
+    }
+    notifyListeners();
   }
 
   /// todo 12: add these variable to support history stack

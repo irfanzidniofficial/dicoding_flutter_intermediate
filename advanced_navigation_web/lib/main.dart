@@ -1,18 +1,46 @@
+import 'package:advanced_navigation_web/db/auth_repository.dart';
+import 'package:advanced_navigation_web/provider/auth_provider.dart';
+import 'package:advanced_navigation_web/routes/router_delegate.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
 void main() {
-  runApp(const MainApp());
+  runApp(const QuotesApp());
 }
 
-class MainApp extends StatelessWidget {
-  const MainApp({super.key});
+class QuotesApp extends StatefulWidget {
+  const QuotesApp({super.key});
+
+  @override
+  State<QuotesApp> createState() => _QuotesAppState();
+}
+
+class _QuotesAppState extends State<QuotesApp> {
+  late MyRouterDelegate myRouterDelegate;
+
+  /// todo 6: add variable for create instance
+  late AuthProvider authProvider;
+
+  @override
+  void initState() {
+    super.initState();
+    final authRepository = AuthRepository();
+
+    authProvider = AuthProvider(authRepository);
+
+    /// todo 7: inject auth to router delegate
+    myRouterDelegate = MyRouterDelegate(authRepository);
+  }
 
   @override
   Widget build(BuildContext context) {
-    return const MaterialApp(
-      home: Scaffold(
-        body: Center(
-          child: Text('Hello World!'),
+    return ChangeNotifierProvider(
+      create: (context) => authProvider,
+      child: MaterialApp(
+        title: 'Quotes App',
+        home: Router(
+          routerDelegate: myRouterDelegate,
+          backButtonDispatcher: RootBackButtonDispatcher(),
         ),
       ),
     );

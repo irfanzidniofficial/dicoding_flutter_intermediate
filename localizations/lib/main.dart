@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:localizations/common.dart';
 import 'package:localizations/home.dart';
 
 void main() {
@@ -25,6 +26,8 @@ class MyApp extends StatelessWidget {
           ),
         ),
       ),
+      localizationsDelegates: AppLocalizations.localizationsDelegates,
+      supportedLocales: AppLocalizations.supportedLocales,
       home: const HomePage(),
     );
   }

@@ -7,18 +7,52 @@ class LoginScreen extends StatefulWidget {
   State<LoginScreen> createState() => _LoginScreenState();
 }
 
-class _LoginScreenState extends State<LoginScreen> {
+class _LoginScreenState extends State<LoginScreen>
+    with SingleTickerProviderStateMixin {
   final emailController = TextEditingController();
 
   final passwordController = TextEditingController();
 
   final formKey = GlobalKey<FormState>();
 
+  late final AnimationController controller;
+  late final Animation<AlignmentGeometry> animation;
+
+  @override
+  void initState() {
+    super.initState();
+
+    controller = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 300),
+    );
+
+    animation = AlignmentTween(
+      begin: Alignment.centerLeft,
+      end: Alignment.centerRight,
+    ).animate(
+      CurvedAnimation(
+        parent: controller,
+        curve: Curves.easeInOutCubic,
+      ),
+    );
+  }
+
   @override
   void dispose() {
+    controller.dispose();
     emailController.dispose();
     passwordController.dispose();
     super.dispose();
+  }
+
+  bool get _isValid => formKey.currentState!.validate();
+
+  void _onHover(bool value) {
+    if (controller.isAnimating) return;
+    if (!_isValid) {
+      controller.isCompleted ? controller.reverse() : controller.forward();
+    }
   }
 
   @override
@@ -64,18 +98,24 @@ class _LoginScreenState extends State<LoginScreen> {
                   },
                 ),
                 const SizedBox(height: 8),
-                ElevatedButton(
-                  onPressed: () async {
-                    if (formKey.currentState!.validate()) {
-                      final email = emailController.text;
-                      final password = passwordController.text;
-                      final text = "Email: $email \nPassword: $password";
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        SnackBar(content: Text(text)),
-                      );
-                    }
-                  },
-                  child: const Text("LOGIN"),
+                AlignTransition(
+                  alignment: animation,
+                  child: ElevatedButton(
+                    onHover: _onHover,
+                    onPressed: () async {
+                      if (_isValid) {
+                        final email = emailController.text;
+                        final password = passwordController.text;
+                        final text = "Email: $email \nPassword: $password";
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(content: Text(text)),
+                        );
+                      } else {
+                        _onHover(true);
+                      }
+                    },
+                    child: const Text("LOGIN"),
+                  ),
                 ),
                 const SizedBox(height: 8),
               ],

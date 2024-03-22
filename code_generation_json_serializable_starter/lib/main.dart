@@ -1,19 +1,28 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import 'provider/asset_provider.dart';
+import 'screen/home_screen.dart';
+import 'service/asset_service.dart';
 
 void main() {
-  runApp(const MainApp());
+  runApp(const QuoteListApp());
 }
 
-class MainApp extends StatelessWidget {
-  const MainApp({super.key});
+class QuoteListApp extends StatelessWidget {
+  const QuoteListApp({super.key});
 
   @override
   Widget build(BuildContext context) {
-    return const MaterialApp(
-      home: Scaffold(
-        body: Center(
-          child: Text('Hello World!'),
+    return ChangeNotifierProvider(
+      create: (context) => ApiProvider(
+        AssetService(),
+      ),
+      child: MaterialApp(
+        title: 'Quote List App',
+        theme: ThemeData(
+          primarySwatch: Colors.blue,
         ),
+        home: const HomeScreen(),
       ),
     );
   }
